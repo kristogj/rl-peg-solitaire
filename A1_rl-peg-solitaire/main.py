@@ -1,5 +1,6 @@
 from utils import load_config
 import logging
+from board import DiamondPegBoard, TrianglePegBoard, get_board
 
 if __name__ == '__main__':
     logging.basicConfig(
@@ -12,3 +13,7 @@ if __name__ == '__main__':
     config = load_config(config_path)
 
     logging.info(config)
+
+    # Initialize agent and board
+    board_type = get_board(config["Board"])
+

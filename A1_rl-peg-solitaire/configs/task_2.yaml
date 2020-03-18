@@ -1,42 +1,54 @@
-# The type of Solitaire board: diamond (d) or triangle (t)
-type: "d"
+Board:
+  # The type of Solitaire board: diamond (d) or triangle (t)
+  type: "d"
 
- # The size of the board
-size: 4
+  # The size of the board
+  size: 4
 
-# TODO: Initial state
-init_state: None
+  # The open cell (or cells) in the puzzle’s start state. NOTE: It should be possible to create an initial
+  # state with one or more holes. There for add config for all holes location (row, column).
+  holes_loc: [[1,1]]
 
-# Epochs - The number of episodes it will run
-epochs: 10
+Critic:
+  # Critic using table lookup or neural network
+  table_lookup: True
 
-# Critic using table lookup or neural network
-table_lookup: True
+  # Dimension of critics neural network. E.g, (20,10,1) is three layers with 20, 10 and 1 neuron.
+  critic_layer_specs: (15, 20, 30, 5, 1)
 
-# Dimension of critics neural network. E.g, (20,10,1) is three layers with 20, 10 and 1 neuron.
-critic_layer_specs: (15, 20, 30, 5, 1)
+  # Learning rate critic
+  # When the critic uses a neural network, it is often wise to have a much lower learning rate for the critic than for the actor.
+  lr_critic: 1e-3
 
-# Learning rates for the actor and critic – you may have separate values for each. When the critic
-# uses a neural network, it is often wise to have a much lower learning rate for the critic than for the actor.
-lr_actor: 1e-4
-lr_critic: 1e-3
+  # Decay rate critic
+  dr_critic: 1
 
-# Decay rate actor and critic
-dr_actor: 1
-dr_critic: 1
+  # Discount factor critic
+  df_critic: 1
 
-# Discount factor actor and critic
-df_actor: 1
-df_critic: 1
+Actor:
+  # Learning rates for the actor and critic – you may have separate values for each.
+  lr_actor: 1e-4
 
-# Epsilon for epsilon-greedy strategy with decay rate if changing
-epsilon: 1
-dr_epsilon: 1
 
-# Display visualizations on-off
-display: True
+  # Decay rate actor and critic
+  dr_actor: 1
 
-# Delay between frames of the game viewer
-frame_delay: 1
+  # Discount factor actor and critic
+  df_actor: 1
+
+Training:
+  # Epochs - The number of episodes it will run
+  epochs: 10
+
+  # Epsilon for epsilon-greedy strategy with decay rate if changing
+  epsilon: 1
+  dr_epsilon: 1
+
+  # Display visualizations on-off
+  display: True
+
+  # Delay between frames of the game viewer
+  frame_delay: 1
 
 
