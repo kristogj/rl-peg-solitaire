@@ -1,6 +1,6 @@
 from utils import load_config
 import logging
-from board import DiamondPegBoard, TrianglePegBoard, get_board
+from environment.board import get_board
 
 if __name__ == '__main__':
     logging.basicConfig(

@@ -1,6 +1,6 @@
 Board:
   # The type of Solitaire board: diamond (d) or triangle (t)
-  type: "d"
+  type: "t"
 
   # The size of the board
   size: 4
@@ -30,8 +30,7 @@ Actor:
   # Learning rates for the actor and critic – you may have separate values for each.
   lr_actor: 1e-4
 
-
-  # Decay rate actor and critic
+  # Decay rate actor
   dr_actor: 1
 
   # Discount factor actor and critic
@@ -43,6 +42,8 @@ Training:
 
   # Epsilon for epsilon-greedy strategy with decay rate if changing
   epsilon: 1
+
+  # Decay rate epsilon
   dr_epsilon: 1
 
   # Display visualizations on-off
