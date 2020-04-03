@@ -1,21 +1,21 @@
 from abc import ABC, abstractmethod
 from cell import Cell
-import logging
+from action import Action
+
 
 class PegBoard(ABC):
 
     def __init__(self, config):
-        logging.info("Initializing board")
-        self.size = config["size"]
-        self.type = config["type"]
-        self.holes_loc = config["holes_loc"]
-        self.board = [[None for _ in range(self.size)] for _ in range(self.size)]
+        self.size = config["size"]  # Size of the board
+        self.type = config["type"]  # Board type. Diamond or Triangle
+        self.holes_loc = config["holes_loc"]  # List of locations of all cells that should be init as empty
+        self.board = [[None for _ in range(self.size)] for _ in range(self.size)]  # The actual board used while playing
 
     @abstractmethod
-    def fill_board(self):
+    def init_board(self):
         pass
 
-    def remove_pegs(self):
+    def init_holes(self):
         """
         Set peg attribute of Cell to False if it should be removed from the board.
         :return:
@@ -36,30 +36,78 @@ class PegBoard(ABC):
         return self.board[row][col]
 
     def get_cells(self):
+        """
+        Return a list of all Cells that are not None on the board
+        :return: List[Cell]
+        """
         return [cell for row in self.board for cell in row if cell]
+
+    def get_empty_cells(self):
+        """
+        Return a list of all empty cells
+        :return: List[Cell]
+        """
+        return [cell for cell in self.get_cells() if not cell.peg]
+
+    def get_legal_actions(self):
+        """
+        Return a list of all legal actions that can be done on the board.
+        :return: List[Action]
+        """
+        legal_actions = []
+        for empty_cell in self.get_empty_cells():
+            # Check neighbours of all empty cells
+            neighbours = empty_cell.get_neighbours().values()
+            for neighbour in neighbours:
+                neighbour_cell = neighbour["cell"]
+                # If the neighbour is a peg, you should calculate the neighbour that could do a legal move over it
+                if neighbour_cell.peg:
+                    pattern = neighbour["pattern"]
+                    coord = (neighbour_cell.row + pattern[0], neighbour_cell.column + pattern[1])
+                    if self.is_legal_neighbour(coord) and self.get_cell(coord).peg:
+                        legal_actions.append(Action(self.get_cell(coord), neighbour_cell, empty_cell))
+        return legal_actions
 
     def set_cell(self, cell):
         """
-        Update the board at the cell position to be the cell instance.
+        Update board at cell position
         :param cell: Cell
         """
         self.board[cell.row][cell.column] = cell
 
-    def is_legal_neighbour(self, coord):
-        r, c = coord
-        return (0 <= r < self.size) and (0 <= c < self.size)
-
     def set_neighbours(self, neighbour_pattern):
+        """
+        For each cell on the board, calculate its neighbours positions and add to list of neighbours if it is a legal
+        neighbour.
+        :param neighbour_pattern:
+        :return: None
+        """
         for r in range(self.size):
             for c in range(self.size):
                 current_cell = self.get_cell((r, c))
                 if current_cell:
                     neighbours = list(map(lambda tup: (r + tup[0], c + tup[1]), neighbour_pattern))
-                    for coord in neighbours:
+                    for i, coord in enumerate(neighbours):
                         if self.is_legal_neighbour(coord):
                             cell = self.get_cell(coord)
                             if cell:
-                                current_cell.add_neighbour(cell)
+                                current_cell.add_neighbour(cell, neighbour_pattern[i])
+
+    def is_legal_neighbour(self, coord):
+        """
+        Check if coord gives position to a legal cell on the board
+        :param coord:
+        :return:
+        """
+        r, c = coord
+        return (0 <= r < self.size) and (0 <= c < self.size)
+
+    def num_pegs_on_board(self):
+        """
+        Return number of pegs left on the board
+        :return: int
+        """
+        return len(list(filter(lambda cell: cell.peg, self.get_cells())))
 
     def __str__(self):
         res = ""
@@ -73,16 +121,17 @@ class DiamondPegBoard(PegBoard):
     def __init__(self, config):
         super(DiamondPegBoard, self).__init__(config)
         # Fill board with pegs
-        self.fill_board()
+        self.init_board()
 
         # Remove pegs where there should be holes
-        self.remove_pegs()
+        self.init_holes()
 
         # Each cell will have a maximum of 6 neighbours:
         # (r-1,c) (r-1,c+1), (r,c-1), (r.c+1), (r+1,c-1), (r+1,c)
-        self.set_neighbours([(-1, 0), (-1, 1), (0, - 1), (0, 1), (1, - 1), (1, 0)])
+        self.pattern = [(-1, 0), (-1, 1), (0, - 1), (0, 1), (1, - 1), (1, 0)]
+        self.set_neighbours(self.pattern)
 
-    def fill_board(self):
+    def init_board(self):
         """
         Update board with new Cell instances
         """
@@ -96,26 +145,20 @@ class TrianglePegBoard(PegBoard):
     def __init__(self, config):
         super(TrianglePegBoard, self).__init__(config)
         # Fill board with pegs
-        self.fill_board()
+        self.init_board()
 
         # Remove pegs where there should be holes
-        self.remove_pegs()
+        self.init_holes()
 
         # Each cell will have a maximum of 6 neighbours:
         # (r-1,c-1), (r-1,c), (r,c-1), (r, c+1), (r+1,c), (r+1, c+1)
-        self.set_neighbours([(- 1, - 1), (- 1, 0), (0, - 1), (0, + 1), (1, 0), (1, 1)])
+        self.pattern = [(- 1, - 1), (- 1, 0), (0, - 1), (0, + 1), (1, 0), (1, 1)]
+        self.set_neighbours(self.pattern)
 
-    def fill_board(self):
+    def init_board(self):
         """
         Update board with new Cell instances
         """
         for row in range(self.size):
             for column in range(row + 1):
                 self.set_cell(Cell(row, column, True))
-
-
-def get_board(config):
-    if config["type"] == "d":
-        return DiamondPegBoard(config)
-    elif config["type"] == "t":
-        return TrianglePegBoard(config)

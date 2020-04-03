@@ -1,6 +1,6 @@
 from utils import load_config
 import logging
-from environment.board import get_board
+from environment.sim_world import SimWorld
 from visualizer import BoardVisualizer
 
 if __name__ == '__main__':
@@ -11,12 +11,10 @@ if __name__ == '__main__':
             logging.StreamHandler()
         ])
     config_path = "configs/task_2.yaml"
-    config = load_config(config_path)
 
+    # Load settings for this run
+    config = load_config(config_path)
     logging.info(config)
 
-    # Initialize agent and board
-    board = get_board(config["Board"])
-
-    visualizer = BoardVisualizer(board)
-    visualizer.draw_board()
+    # Initialize the Simulated World
+    SimWorld(config)

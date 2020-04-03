@@ -1,6 +1,6 @@
 Board:
   # The type of Solitaire board: diamond (d) or triangle (t)
-  type: "d"
+  type: "t"
 
   # The size of the board
   size: 4
@@ -51,5 +51,9 @@ Training:
 
   # Delay between frames of the game viewer
   frame_delay: 1
+
+Player:
+  # Who is playing
+  name: "Kristoffer"
 
 

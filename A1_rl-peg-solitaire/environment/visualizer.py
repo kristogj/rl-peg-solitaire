@@ -1,13 +1,11 @@
 import networkx as nx
 import matplotlib.pyplot as plt
-import logging
 
 
 # Visualize the Board using networkx
 class BoardVisualizer:
 
     def __init__(self, board):
-        logging.info("Initializing BoardVisualizer")
         self.board = board
         self.graph = self.gen_graph()
         self.positions = {cell: (cell.row, cell.column) for cell in self.board.get_cells()}
@@ -19,9 +17,9 @@ class BoardVisualizer:
                 cell = self.board.get_cell((r, c))
                 if cell:
                     G.add_node(cell)
-                    # Add all edges from cell
-                neighbours = [(cell, neighbour) for neighbour in cell.neighbours.values()]
-                G.add_edges_from(neighbours)
+                    # Add all edges from cell to its neighbours
+                    neighbours = [(cell, neighbour["cell"]) for neighbour in cell.get_neighbours()]
+                    G.add_edges_from(neighbours)
 
         return G
 
