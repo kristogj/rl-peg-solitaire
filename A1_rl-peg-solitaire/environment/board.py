@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from cell import Cell
-
+import logging
 
 class PegBoard(ABC):
 
     def __init__(self, config):
-        print(config)
+        logging.info("Initializing board")
         self.size = config["size"]
         self.type = config["type"]
         self.holes_loc = config["holes_loc"]
@@ -34,6 +34,9 @@ class PegBoard(ABC):
         """
         row, col = coord
         return self.board[row][col]
+
+    def get_cells(self):
+        return [cell for row in self.board for cell in row if cell]
 
     def set_cell(self, cell):
         """

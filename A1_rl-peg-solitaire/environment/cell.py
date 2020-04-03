@@ -11,7 +11,7 @@ class Cell:
         self.neighbours[(cell.row, cell.column)] = cell
 
     def __repr__(self):
-        return str(self.peg)
+        return "({},{},{})".format(self.row,self.column, self.peg)
 
     def __str__(self):
-        return str(self.peg)
+        return "({},{},{})".format(self.row,self.column, self.peg)

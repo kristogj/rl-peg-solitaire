@@ -1,6 +1,6 @@
 Board:
   # The type of Solitaire board: diamond (d) or triangle (t)
-  type: "t"
+  type: "d"
 
   # The size of the board
   size: 4

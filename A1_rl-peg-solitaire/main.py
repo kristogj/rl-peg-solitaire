@@ -1,6 +1,7 @@
 from utils import load_config
 import logging
 from environment.board import get_board
+from visualizer import BoardVisualizer
 
 if __name__ == '__main__':
     logging.basicConfig(
@@ -15,5 +16,7 @@ if __name__ == '__main__':
     logging.info(config)
 
     # Initialize agent and board
-    board_type = get_board(config["Board"])
+    board = get_board(config["Board"])
 
+    visualizer = BoardVisualizer(board)
+    visualizer.draw_board()
