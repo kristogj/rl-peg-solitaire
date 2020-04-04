@@ -1,5 +1,6 @@
 import yaml
 from environment.board import DiamondPegBoard, TrianglePegBoard
+from agent.critic import TableCritic, NeuralCritic
 
 
 def load_config(path):
@@ -19,3 +20,12 @@ def get_board(config):
         return DiamondPegBoard(config)
     elif config["type"] == "t":
         return TrianglePegBoard(config)
+
+
+def get_critic(config):
+    """
+    Return the correct critic based on what is given in the configurations
+    :param config: dict
+    :return: Critic
+    """
+    return TableCritic(config) if config["table_lookup"] else NeuralCritic(config)

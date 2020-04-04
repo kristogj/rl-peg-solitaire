@@ -22,9 +22,9 @@ class PegBoard(ABC):
         """
         for row, column in self.holes_loc:
             try:
-                self.board[row][column].peg = False
+                self.board[row][column].is_peg = False
             except AttributeError:
-                raise AttributeError("Cell({}{}) does not have 'peg' attribute.".format(row, column))
+                raise AttributeError("Cell({}{}) does not have 'is_peg' attribute.".format(row, column))
 
     def get_cell(self, coord):
         """
@@ -68,6 +68,20 @@ class PegBoard(ABC):
                         legal_actions.append(Action(self.get_cell(coord), neighbour_cell, empty_cell))
         return legal_actions
 
+    def to_binary_string_encoding(self):
+        """
+        Return a binary encoding of the board as a string where 1 is_peg and 0 is empty
+        :return: str
+        """
+        return "".join(map(lambda cell: str(int(cell.is_peg)), self.get_cells()))
+
+    def to_binary_list_encoding(self):
+        """
+        Return a binary encoding of the board as a list where 1 is_peg and 0 is empty
+        :return:
+        """
+        return list(map(lambda cell: int(cell.is_peg), self.get_cells()))
+
     def set_cell(self, cell):
         """
         Update board at cell position
@@ -108,6 +122,19 @@ class PegBoard(ABC):
         :return: int
         """
         return len(list(filter(lambda cell: cell.peg, self.get_cells())))
+
+    def perform_action(self, action):
+        """
+        Perform the action on the board, and return the new state and reward
+        :param action: Action
+        :return: str (state), float (reward)
+        """
+        action.from_.is_peg = False
+        action.over.is_peg = False
+        action.to_.is_peg = True
+
+        # TODO: Calculate reward
+        return self.to_binary_string_encoding(), None
 
     def __str__(self):
         res = ""

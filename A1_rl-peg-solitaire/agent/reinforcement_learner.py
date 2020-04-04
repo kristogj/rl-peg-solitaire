@@ -1,28 +1,25 @@
-# THE ACTOR
-
-"""
-POLICY:
-The actor’s policy should be represented as a table (or Python dictionary) that maps state-action pairs (s,a)
-to values that indicate the desirability of performing action a when in state s. For any state s, it is wise to
-normalize the values across all legal actions from s, thus yielding a probability distribution over the possible
-actions to take from s. The  greedy policy would then choose the action with the highest probability, or a
-random value.
-
-EPSILON:
-To insure a balance between exploration and exploitation, the actor should use its policy in an -greedy
-manner (see actor-critic.pdf), where eps is either a constant, user-supplied parameter, or a dynamic variable
-that changes (i.e. decreases) from earlier to later episodes. By setting eps = 0 at run’s end, the behavior policy
-essentially becomes the target policy. By displaying one game played with this policy, the user sees the best
-moves that the actor has found for the states of an episode.
-"""
+from actor import Actor
+from utils import get_critic
+import logging
 
 
-class Actor:
+class ReinforcementLearner:
 
-    def __init__(self, epsilon):
-        """
-        self. policy: Maps state-action pairs (s,a) to values that indicate the desirability of performing action a
-        when in state s
-        """
-        self.policy = {}
-        self.epsilon = epsilon
+    def __init__(self, config):
+        logging.info("Setting up the ReinforcementLearner")
+        self.config = config
+        self.actor = Actor(config["Actor"])
+        self.critic = get_critic(config["Critic"])
+
+    def train(self):
+
+        for episode in range(1, self.config["episodes"] + 1):
+
+            # TODO: Reset eligibilities in actor and critic
+            # TODO: Init start state and start action
+            state, action = None, None
+
+            while True:
+                pass
+
+        return

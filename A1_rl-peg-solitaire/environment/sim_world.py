@@ -33,3 +33,15 @@ class SimWorld:
         :return: boolean
         """
         return self.board.num_pegs_on_board() > 1 and len(self.board.get_legal_actions()) > 0
+
+    def get_reward(self):
+        """
+        Return the reward of being in the boards state
+        :return:
+        """
+        if self.is_winning_state():
+            return 9999
+        elif self.is_loosing_state():
+            return - self.board.get_empty_cells() ** 2
+        else:
+            return 0

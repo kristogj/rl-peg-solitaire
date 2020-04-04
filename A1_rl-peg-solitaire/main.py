@@ -1,7 +1,7 @@
 from utils import load_config
 import logging
 from environment.sim_world import SimWorld
-from visualizer import BoardVisualizer
+from agent.reinforcement_learner import ReinforcementLearner
 
 if __name__ == '__main__':
     logging.basicConfig(
@@ -18,3 +18,6 @@ if __name__ == '__main__':
 
     # Initialize the Simulated World
     SimWorld(config)
+
+    # Initialize the Reinforcement Learner
+    ReinforcementLearner(config)
