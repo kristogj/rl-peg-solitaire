@@ -1,1 +1,1 @@
-# IT3105_AI_Progg
+# rl-peg-solitaire
