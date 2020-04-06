@@ -49,25 +49,6 @@ class PegBoard(ABC):
         """
         return [cell for cell in self.get_cells() if not cell.peg]
 
-    def get_legal_actions(self):
-        """
-        Return a list of all legal actions that can be done on the board.
-        :return: List[Action]
-        """
-        legal_actions = []
-        for empty_cell in self.get_empty_cells():
-            # Check neighbours of all empty cells
-            neighbours = empty_cell.get_neighbours().values()
-            for neighbour in neighbours:
-                neighbour_cell = neighbour["cell"]
-                # If the neighbour is a peg, you should calculate the neighbour that could do a legal move over it
-                if neighbour_cell.peg:
-                    pattern = neighbour["pattern"]
-                    coord = (neighbour_cell.row + pattern[0], neighbour_cell.column + pattern[1])
-                    if self.is_legal_neighbour(coord) and self.get_cell(coord).peg:
-                        legal_actions.append(Action(self.get_cell(coord), neighbour_cell, empty_cell))
-        return legal_actions
-
     def to_binary_string_encoding(self):
         """
         Return a binary encoding of the board as a string where 1 is_peg and 0 is empty

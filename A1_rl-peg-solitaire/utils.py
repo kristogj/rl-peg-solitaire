@@ -1,6 +1,7 @@
 import yaml
 from environment.board import DiamondPegBoard, TrianglePegBoard
 from agent.critic import TableCritic, NeuralCritic
+import logging
 
 
 def load_config(path):
@@ -29,3 +30,16 @@ def get_critic(config):
     :return: Critic
     """
     return TableCritic(config) if config["table_lookup"] else NeuralCritic(config)
+
+
+def init_logger():
+    """
+    Initialize logger settings
+    :return: None
+    """
+    logging.basicConfig(
+        level=logging.INFO, format="%(asctime)s [%(levelname)-5.5s]  %(message)s",
+        handlers=[
+            logging.FileHandler("./app.log", mode="w"),
+            logging.StreamHandler()
+        ])

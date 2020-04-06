@@ -37,7 +37,12 @@ class Critic(ABC):
         :param reward: int
         :return: float
         """
-        return reward + self.config["df_critic"] * self.get_value(future_state) - self.get_value(current_state)
+        self.td_error = reward + self.config["df_critic"] * self.get_value(future_state) - self.get_value(current_state)
+        return self.td_error
+
+    @abstractmethod
+    def reset_eligibility(self):
+        pass
 
 
 class TableCritic(Critic):
@@ -48,7 +53,7 @@ class TableCritic(Critic):
     def __init__(self, config):
         super(TableCritic, self).__init__(config)
         self.value_function = defaultdict(lambda: random.random())  # Value function (V) mapping states to their value
-        self.eligibility = defaultdict(lambda: 1)  # Eligibility function (e)
+        self.eligibility = defaultdict(lambda: 0)  # Eligibility function (e)
 
     def get_value(self, state):
         """
@@ -78,8 +83,17 @@ class TableCritic(Critic):
         """
         self.eligibility[state] *= self.config["df_critic"] * self.config["tdf_critic"]
 
+    def set_eligibility(self, state, value):
+        """
+        Set the value that state maps to in eligibility to value.
+        :param state: str
+        :param value: int
+        :return:
+        """
+        self.eligibility[state] = value
+
     def reset_eligibility(self):
-        self.eligibility = defaultdict(lambda: 1)
+        self.eligibility = defaultdict(lambda: 0)
 
 
 class NeuralCritic(Critic):
@@ -100,4 +114,5 @@ class NeuralCritic(Critic):
         """
         return self.critic(state)
 
-    
+    def reset_eligibility(self):
+        pass

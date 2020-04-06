@@ -39,6 +39,9 @@ Actor:
   # Discount factor actor and critic
   df_actor: 1
 
+  # Trace decay factor
+  tdf_actor: 1
+
 Training:
   # Epochs - The number of episodes it will run
   episodes: 10

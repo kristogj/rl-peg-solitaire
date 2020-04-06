@@ -5,21 +5,14 @@ import logging
 
 class ReinforcementLearner:
 
-    def __init__(self, config):
+    def __init__(self, player, config):
         logging.info("Setting up the ReinforcementLearner")
         self.config = config
-        self.actor = Actor(config["Actor"])
+        self.actor = Actor(player, config["Actor"])
         self.critic = get_critic(config["Critic"])
 
-    def train(self):
+    def get_actor(self):
+        return self.actor
 
-        for episode in range(1, self.config["episodes"] + 1):
-
-            # TODO: Reset eligibilities in actor and critic
-            # TODO: Init start state and start action
-            state, action = None, None
-
-            while True:
-                pass
-
-        return
+    def get_critic(self):
+        return self.critic

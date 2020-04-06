@@ -9,8 +9,8 @@ class SimWorld:
 
     def __init__(self, config):
         logging.info("Setting up the Simulated World")
-        self.player = Player(config["Player"])  # Peq Solitaire Player
         self.board = get_board(config["Board"])  # Game board
+        self.player = Player(self.board, config["Player"])  # Peq Solitaire Player
         self.visualizer = BoardVisualizer(self.board)  # Class for visualizing board using networkx
 
     def is_winning_state(self):
@@ -25,14 +25,14 @@ class SimWorld:
         If there is more than one peg on the board, but no legal moves, you loose
         :return: boolean
         """
-        return self.board.num_pegs_on_board() > 1 and len(self.board.get_legal_actions()) == 0
+        return self.board.num_pegs_on_board() > 1 and len(self.player.get_legal_actions()) == 0
 
     def is_neutral_state(self):
         """
         If the board has more than one peg on the board, and at least one legal move, the game can still be played
         :return: boolean
         """
-        return self.board.num_pegs_on_board() > 1 and len(self.board.get_legal_actions()) > 0
+        return self.board.num_pegs_on_board() > 1 and len(self.player.get_legal_actions()) > 0
 
     def get_reward(self):
         """
@@ -45,3 +45,17 @@ class SimWorld:
             return - self.board.get_empty_cells() ** 2
         else:
             return 0
+
+    def get_player(self):
+        """
+        Return the Player of the game
+        :return: Player
+        """
+        return self.player
+
+    def get_board(self):
+        """
+        Return the Board of the game
+        :return: Board
+        """
+        return self.board
