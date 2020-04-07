@@ -25,12 +25,6 @@ class PegBoard(ABC):
             except AttributeError:
                 raise AttributeError("Cell({}{}) does not have 'is_peg' attribute.".format(row, column))
 
-    def reset(self):
-        """
-        Initialize a new board
-        """
-        self.init_board()
-
     def get_cell(self, coord):
         """
         Return cell at the given coordinate on the board
@@ -136,6 +130,16 @@ class DiamondPegBoard(PegBoard):
 
         self.set_neighbours(self.pattern)
 
+    def reset(self):
+        """
+        Initialize a new board
+        """
+        for row in range(self.size):
+            for column in range(self.size):
+                self.get_cell((row, column)).is_peg = True
+        # Remove pegs where there should be holes
+        self.init_holes()
+
 
 class TrianglePegBoard(PegBoard):
 
@@ -159,3 +163,13 @@ class TrianglePegBoard(PegBoard):
         self.init_holes()
 
         self.set_neighbours(self.pattern)
+
+    def reset(self):
+        """
+        Initialize a new board
+        """
+        for row in range(self.size):
+            for column in range(row + 1):
+                self.get_cell((row, column)).is_peg = True
+        # Remove pegs where there should be holes
+        self.init_holes()

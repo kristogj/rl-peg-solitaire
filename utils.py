@@ -6,7 +6,7 @@ import logging
 
 def load_config(path):
     """
-    Load the configuration from task_2.yaml.
+    Load the configuration from task_2_table.yaml.
     """
     return yaml.load(open(path, 'r'), Loader=yaml.SafeLoader)
 

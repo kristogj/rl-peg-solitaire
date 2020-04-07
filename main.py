@@ -3,10 +3,14 @@ import logging
 from environment.sim_world import SimWorld
 from agent.reinforcement_learner import ReinforcementLearner
 from plotting import plot_progression_of_learning
+import random
+import torch
 
 if __name__ == '__main__':
     init_logger()
-    config_path = "configs/task_2.yaml"
+    # random.seed(42)
+    # torch.manual_seed(42)
+    config_path = "configs/task_2_nn.yaml"
 
     # Load settings for this run
     config = load_config(config_path)
@@ -81,6 +85,9 @@ if __name__ == '__main__':
 
         # Reset board for next game
         board.reset()
+
+    # Visualize last episode
+    sim_world.visualize_episode(current_episode, config["Training"])
 
     # All episodes has ran, save results
     plot_progression_of_learning(remaining_pegs_pr_episode)

@@ -116,23 +116,40 @@ class NeuralCritic(Critic):
         """
         state = list(map(int, list(state)))
         state = torch.FloatTensor(state)
-        return self.value_function(state)
+        value = self.value_function(state)
+        return value
 
     def update_value(self, state):
+        """
         with torch.no_grad():
             for p, eligibility in zip(self.value_function.parameters(), self.eligibility):
                 new_val = p + self.config["lr_critic"] * self.td_error * eligibility
                 p.copy_(new_val)
+
+        with torch.no_grad():
+            for i, weight in enumerate(self.value_function.parameters()):
+
+                eligibility_trace = self.config["df_critic"] * self.config["lr_critic"] * self.eligibility[i]
+                torch.add(weight, eligibility_trace)
+        """
+        self.optimizer.zero_grad()
+        outputs = self.get_value(state)
+        outputs.backward()
+        for i, weight in enumerate(self.value_function.parameters()):
+            self.eligibility[i] += weight.grad
+            weight.grad = -self.td_error * self.eligibility[i]
+        self.optimizer.step()
 
     def set_eligibility(self, state, value):
         self.value_function.zero_grad()
         self.td_error.backward()
 
     def update_eligibility(self, state):
-        with torch.no_grad():
-            for p, eligibility in zip(self.value_function.parameters(), self.eligibility):
-                new_val = eligibility + p.grad
-                eligibility.copy_(new_val)
+        #with torch.no_grad():
+            #for p, eligibility in zip(self.value_function.parameters(), self.eligibility):
+                #new_val = eligibility + p.grad
+                #eligibility.copy_(new_val)
+        pass
 
     def reset_eligibility(self):
         self.eligibility = [torch.zeros(param.shape) for param in self.value_function.parameters()]

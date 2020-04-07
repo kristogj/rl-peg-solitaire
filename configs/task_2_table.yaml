@@ -1,6 +1,6 @@
 Board:
   # The type of Solitaire board: diamond (d) or triangle (t)
-  type: "t"
+  type: "d"
 
   # The size of the board
   size: 5
@@ -11,14 +11,14 @@ Board:
 
 Critic:
   # Critic using table lookup or neural network
-  table_lookup: False
+  table_lookup: True
 
   # Dimension of critics neural network. E.g, (20,10,1) is three layers with 20, 10 and 1 neuron.
-  critic_layer_specs: [15, 20, 30, 5, 1]
+  critic_layer_specs: [15, 5, 1]
 
   # Learning rate critic
   # When the critic uses a neural network, it is often wise to have a much lower learning rate for the critic than for the actor.
-  lr_critic: 0.00001
+  lr_critic: 0.0001
 
   # The eligibility decay rate
   dr_critic: 0.9
@@ -29,7 +29,7 @@ Critic:
 
 Actor:
   # Learning rates for the actor and critic – you may have separate values for each.
-  lr_actor: 0.00005
+  lr_actor: 0.0001
 
   # The eligibility decay rate
   dr_actor: 0.9

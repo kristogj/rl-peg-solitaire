@@ -1,6 +1,6 @@
 from utils import get_board
 from peg_solitaire_player import Player
-from visualizer import BoardVisualizer
+from visualizer import BoardDrawer
 
 import logging
 
@@ -11,7 +11,7 @@ class SimWorld:
         logging.info("Setting up the Simulated World")
         self.board = get_board(config["Board"])  # Game board
         self.player = Player(self.board, config["Player"])  # Peq Solitaire Player
-        self.visualizer = BoardVisualizer(self.board)  # Class for visualizing board using networkx
+        self.visualizer = BoardDrawer(self.board, config["Training"])  # Class for visualizing board using networkx
 
     def is_winning_state(self):
         """
@@ -59,3 +59,13 @@ class SimWorld:
         :return: Board
         """
         return self.board
+
+    def visualize_episode(self, episode, config):
+        board_drawer = BoardDrawer(self.board, config)
+        for sap in episode:
+            _, action = sap
+            if action:
+                board_drawer.draw(action=action)
+                self.player.perform_action(action)
+                board_drawer.draw()
+        board_drawer.animate()
