@@ -11,7 +11,7 @@ Board:
 
 Critic:
   # Critic using table lookup or neural network
-  table_lookup: False
+  table_lookup: True
 
   # Dimension of critics neural network. E.g, (20,10,1) is three layers with 20, 10 and 1 neuron.
   critic_layer_specs: [15, 20, 30, 5, 1]

@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from cell import Cell
-from action import Action
 
 
 class PegBoard(ABC):
@@ -47,7 +46,7 @@ class PegBoard(ABC):
         Return a list of all empty cells
         :return: List[Cell]
         """
-        return [cell for cell in self.get_cells() if not cell.peg]
+        return [cell for cell in self.get_cells() if not cell.is_peg]
 
     def to_binary_string_encoding(self):
         """
@@ -95,27 +94,18 @@ class PegBoard(ABC):
         :return:
         """
         r, c = coord
-        return (0 <= r < self.size) and (0 <= c < self.size)
+        if (0 <= r < self.size) and (0 <= c < self.size):
+            if self.get_cell((r, c)):
+                return True
+        else:
+            return False
 
     def num_pegs_on_board(self):
         """
         Return number of pegs left on the board
         :return: int
         """
-        return len(list(filter(lambda cell: cell.peg, self.get_cells())))
-
-    def perform_action(self, action):
-        """
-        Perform the action on the board, and return the new state and reward
-        :param action: Action
-        :return: str (state), float (reward)
-        """
-        action.from_.is_peg = False
-        action.over.is_peg = False
-        action.to_.is_peg = True
-
-        # TODO: Calculate reward
-        return self.to_binary_string_encoding(), None
+        return len(list(filter(lambda cell: cell.is_peg, self.get_cells())))
 
     def __str__(self):
         res = ""

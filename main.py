@@ -9,6 +9,7 @@ if __name__ == '__main__':
 
     # Load settings for this run
     config = load_config(config_path)
+    training_config = config["Training"]
     logging.info(config)
 
     # Initialize the Simulated World
@@ -22,7 +23,8 @@ if __name__ == '__main__':
     critic = rl.get_critic()
 
     # Start the generic actor-critic algorithm
-    for episode in range(1, config["episodes"] + 1):
+    for episode in range(1, training_config["episodes"] + 1):
+        logging.info("Episode: {}".format(episode))
 
         # List of (state, action) pairs chosen this episode
         current_episode = []
@@ -34,7 +36,6 @@ if __name__ == '__main__':
         # Initialize state and action
         state = board.to_binary_string_encoding()
         action = actor.get_action(state)
-
         while sim_world.is_neutral_state():
             # Legal actions in current state
             legal_actions = player.get_legal_actions()
@@ -42,7 +43,6 @@ if __name__ == '__main__':
             # Do action action from state, moving it to new_state and return reward
             new_state = player.perform_action(action)
             reward = sim_world.get_reward()
-
             # Get the action devoted to the new state by current policy
             new_action = actor.get_action(new_state)
             actor.set_eligibility(state, action, 1)

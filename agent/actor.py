@@ -52,7 +52,10 @@ class Actor:
         legal_actions = list(map(lambda action: (action, self.get_desirability(state, action)),
                                  self.player.get_legal_actions()))
         legal_actions.sort(key=lambda tup: tup[1], reverse=True)
-        return legal_actions[0][0]  # TODO: Not only return the most desirable action
+        try:
+            return legal_actions[0][0]
+        except IndexError:
+            return None
 
     def set_eligibility(self, state, action, value):
         """

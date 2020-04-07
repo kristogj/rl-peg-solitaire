@@ -42,7 +42,7 @@ class SimWorld:
         if self.is_winning_state():
             return 9999
         elif self.is_loosing_state():
-            return - self.board.get_empty_cells() ** 2
+            return - len(self.board.get_empty_cells()) ** 2
         else:
             return 0
 
