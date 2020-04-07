@@ -13,6 +13,7 @@ class NNCritic(nn.Module):
         for x in range(1, len(layer_specs)):
             layer = nn.Linear(in_features=layer_specs[x - 1], out_features=layer_specs[x])
             self.model.add_module("Layer {}".format(x), layer)
+            self.model.add_module("ReLU {}".format(x), nn.ReLU(inplace=True))
 
     def forward(self, encoded_board):
         """

@@ -61,13 +61,6 @@ class PegBoard(ABC):
         """
         return "".join(map(lambda cell: str(int(cell.is_peg)), self.get_cells()))
 
-    def to_binary_list_encoding(self):
-        """
-        Return a binary encoding of the board as a list where 1 is_peg and 0 is empty
-        :return:
-        """
-        return list(map(lambda cell: int(cell.is_peg), self.get_cells()))
-
     def set_cell(self, cell):
         """
         Update board at cell position

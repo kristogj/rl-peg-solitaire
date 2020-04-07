@@ -4,6 +4,7 @@ import random
 
 from models import NNCritic
 from torch.optim import Adam
+import torch
 
 
 class Critic(ABC):
@@ -103,16 +104,35 @@ class NeuralCritic(Critic):
 
     def __init__(self, config):
         super(NeuralCritic, self).__init__(config)
-        self.critic = NNCritic(config["critic_layer_specs"])  # A neural network used as the value function (V)
-        self.optimizer = Adam(self.critic.parameters(), lr=config["lr_critic"])
+        self.value_function = NNCritic(config["critic_layer_specs"])  # A neural network used as the value function (V)
+        self.optimizer = Adam(self.value_function.parameters(), lr=config["lr_critic"])
+        self.eligibility = [torch.zeros(param.shape) for param in self.value_function.parameters()]
 
     def get_value(self, state):
         """
         Given a state, return the estimated value of being in that state
-        :param state: List[int]
+        :param state: str
         :return: float
         """
-        return self.critic(state)
+        state = list(map(int, list(state)))
+        state = torch.FloatTensor(state)
+        return self.value_function(state)
+
+    def update_value(self, state):
+        with torch.no_grad():
+            for p, eligibility in zip(self.value_function.parameters(), self.eligibility):
+                new_val = p + self.config["lr_critic"] * self.td_error * eligibility
+                p.copy_(new_val)
+
+    def set_eligibility(self, state, value):
+        self.value_function.zero_grad()
+        self.td_error.backward()
+
+    def update_eligibility(self, state):
+        with torch.no_grad():
+            for p, eligibility in zip(self.value_function.parameters(), self.eligibility):
+                new_val = eligibility + p.grad
+                eligibility.copy_(new_val)
 
     def reset_eligibility(self):
-        pass
+        self.eligibility = [torch.zeros(param.shape) for param in self.value_function.parameters()]

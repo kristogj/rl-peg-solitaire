@@ -52,3 +52,4 @@ def is_empty(lst):
     :return: boolean
     """
     return len(lst) == 0
+
