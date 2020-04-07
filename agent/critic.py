@@ -81,7 +81,7 @@ class TableCritic(Critic):
         :param state: str
         :return: None
         """
-        self.eligibility[state] *= self.config["df_critic"] * self.config["tdf_critic"]
+        self.eligibility[state] *= self.config["df_critic"] * self.config["dr_critic"]
 
     def set_eligibility(self, state, value):
         """

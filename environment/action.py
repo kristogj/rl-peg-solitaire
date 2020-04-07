@@ -11,5 +11,8 @@ class Action:
         self.over = over  # Cell that is being moved over
         self.to_ = to_  # Cell that is being moved to
 
+    def __str__(self):
+        return "{}{}{}".format(self.from_.__str__(), self.over.__str__(), self.to_.__str__())
+
     def __repr__(self):
         return "{}-{}".format(self.from_, self.to_)

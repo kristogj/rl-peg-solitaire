@@ -25,6 +25,12 @@ class PegBoard(ABC):
             except AttributeError:
                 raise AttributeError("Cell({}{}) does not have 'is_peg' attribute.".format(row, column))
 
+    def reset(self):
+        """
+        Initialize a new board
+        """
+        self.init_board()
+
     def get_cell(self, coord):
         """
         Return cell at the given coordinate on the board
@@ -118,16 +124,11 @@ class DiamondPegBoard(PegBoard):
 
     def __init__(self, config):
         super(DiamondPegBoard, self).__init__(config)
-        # Fill board with pegs
-        self.init_board()
-
-        # Remove pegs where there should be holes
-        self.init_holes()
-
         # Each cell will have a maximum of 6 neighbours:
         # (r-1,c) (r-1,c+1), (r,c-1), (r.c+1), (r+1,c-1), (r+1,c)
         self.pattern = [(-1, 0), (-1, 1), (0, - 1), (0, 1), (1, - 1), (1, 0)]
-        self.set_neighbours(self.pattern)
+
+        self.init_board()
 
     def init_board(self):
         """
@@ -137,21 +138,21 @@ class DiamondPegBoard(PegBoard):
             for column in range(self.size):
                 self.set_cell(Cell(row, column, True))
 
+        # Remove pegs where there should be holes
+        self.init_holes()
+
+        self.set_neighbours(self.pattern)
+
 
 class TrianglePegBoard(PegBoard):
 
     def __init__(self, config):
         super(TrianglePegBoard, self).__init__(config)
-        # Fill board with pegs
-        self.init_board()
-
-        # Remove pegs where there should be holes
-        self.init_holes()
-
         # Each cell will have a maximum of 6 neighbours:
         # (r-1,c-1), (r-1,c), (r,c-1), (r, c+1), (r+1,c), (r+1, c+1)
         self.pattern = [(- 1, - 1), (- 1, 0), (0, - 1), (0, + 1), (1, 0), (1, 1)]
-        self.set_neighbours(self.pattern)
+
+        self.init_board()
 
     def init_board(self):
         """
@@ -160,3 +161,8 @@ class TrianglePegBoard(PegBoard):
         for row in range(self.size):
             for column in range(row + 1):
                 self.set_cell(Cell(row, column, True))
+
+        # Remove pegs where there should be holes
+        self.init_holes()
+
+        self.set_neighbours(self.pattern)

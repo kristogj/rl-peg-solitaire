@@ -3,7 +3,7 @@ Board:
   type: "t"
 
   # The size of the board
-  size: 4
+  size: 5
 
   # The open cell (or cells) in the puzzle’s start state. NOTE: It should be possible to create an initial
   # state with one or more holes. There for add config for all holes location (row, column).
@@ -18,45 +18,40 @@ Critic:
 
   # Learning rate critic
   # When the critic uses a neural network, it is often wise to have a much lower learning rate for the critic than for the actor.
-  lr_critic: 0.001
+  lr_critic: 0.00001
 
-  # Decay rate critic
-  dr_critic: 1
+  # The eligibility decay rate
+  dr_critic: 0.9
 
   # Discount factor critic
-  df_critic: 1
+  df_critic: 0.9
 
-  # Trace decay factor
-  tdf_critic: 1
 
 Actor:
   # Learning rates for the actor and critic – you may have separate values for each.
-  lr_actor: 0.0001
+  lr_actor: 0.00005
 
-  # Decay rate actor
-  dr_actor: 1
+  # The eligibility decay rate
+  dr_actor: 0.9
 
   # Discount factor actor and critic
-  df_actor: 1
-
-  # Trace decay factor
-  tdf_actor: 1
-
-Training:
-  # Epochs - The number of episodes it will run
-  episodes: 10
+  df_actor: 0.9
 
   # Epsilon for epsilon-greedy strategy with decay rate if changing
   epsilon: 1
 
   # Decay rate epsilon
-  dr_epsilon: 1
+  dr_epsilon: 0.987
+
+Training:
+  # Epochs - The number of episodes it will run
+  episodes: 500
 
   # Display visualizations on-off
   display: True
 
   # Delay between frames of the game viewer
-  frame_delay: 1
+  frame_delay: 500
 
 Player:
   # Who is playing

@@ -1,19 +1,6 @@
-"""
-POLICY:
-The actor’s policy should be represented as a table (or Python dictionary) that maps state-action pairs (s,a)
-to values that indicate the desirability of performing action a when in state s. For any state s, it is wise to
-normalize the values across all legal actions from s, thus yielding a probability distribution over the possible
-actions to take from s. The  greedy policy would then choose the action with the highest probability, or a
-random value.
-
-EPSILON:
-To insure a balance between exploration and exploitation, the actor should use its policy in an -greedy
-manner (see actor-critic.pdf), where eps is either a constant, user-supplied parameter, or a dynamic variable
-that changes (i.e. decreases) from earlier to later episodes. By setting eps = 0 at run’s end, the behavior policy
-essentially becomes the target policy. By displaying one game played with this policy, the user sees the best
-moves that the actor has found for the states of an episode.
-"""
 from collections import defaultdict
+from utils import is_empty
+import random
 
 
 class Actor:
@@ -26,6 +13,8 @@ class Actor:
         self.eligibility = defaultdict(lambda: 0)
         self.player = player
         self.td_error = None
+        self.epsilon = config["epsilon"]  # Epsilon for epsilon-greedy strategy
+        self.dr_epsilon = config["dr_epsilon"]  # Decay rate epsilon
 
     def reset_eligibility(self):
         """
@@ -41,7 +30,7 @@ class Actor:
         :param action: Action
         :return: float
         """
-        return self.policy[(state, action)]
+        return self.policy[(state, action.__str__())]
 
     def get_action(self, state):
         """
@@ -51,11 +40,13 @@ class Actor:
         """
         legal_actions = list(map(lambda action: (action, self.get_desirability(state, action)),
                                  self.player.get_legal_actions()))
-        legal_actions.sort(key=lambda tup: tup[1], reverse=True)
-        try:
-            return legal_actions[0][0]
-        except IndexError:
+        if is_empty(legal_actions):
             return None
+        if random.random() < self.epsilon:
+            return random.choice(legal_actions)[0]
+        else:
+            legal_actions.sort(key=lambda tup: tup[1], reverse=True)
+            return legal_actions[0][0]
 
     def set_eligibility(self, state, action, value):
         """
@@ -65,7 +56,7 @@ class Actor:
         :param value: int
         :return: None
         """
-        self.eligibility[(state, action)] = value
+        self.eligibility[(state, action.__str__())] = value
 
     def set_td_error(self, error):
         """
@@ -74,6 +65,14 @@ class Actor:
         :return: None
         """
         self.td_error = error
+
+    def set_epsilon(self, value):
+        """
+        Set the value of epsilon to value
+        :param: value: float
+        :return: None
+        """
+        self.epsilon = value
 
     def update_policy(self, state, action):
         """
@@ -84,7 +83,8 @@ class Actor:
         :param action: Action
         :return: None
         """
-        self.policy[(state, action)] += self.config["lr_actor"] * self.td_error * self.eligibility[(state, action)]
+        self.policy[(state, action.__str__())] += self.config["lr_actor"] * self.td_error * self.eligibility[
+            (state, action.__str__())]
 
     def update_eligibility(self, state, action):
         """
@@ -95,4 +95,13 @@ class Actor:
         :param action: Action
         :return: None
         """
-        self.eligibility[(state, action)] *= self.config["df_actor"] * self.config["tdf_actor"]
+        self.eligibility[(state, action.__str__())] *= self.config["df_actor"] * self.config["dr_actor"]
+
+    def update_epsilon(self):
+        """
+        Update the value of epsilon.
+        The update rule is defined as:
+            epsilon = dr_epsilon * epsilon
+        :return: None
+        """
+        self.epsilon = self.dr_epsilon * self.epsilon

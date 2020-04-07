@@ -2,6 +2,7 @@ from utils import load_config, init_logger
 import logging
 from environment.sim_world import SimWorld
 from agent.reinforcement_learner import ReinforcementLearner
+from plotting import plot_progression_of_learning
 
 if __name__ == '__main__':
     init_logger()
@@ -22,9 +23,19 @@ if __name__ == '__main__':
     actor = rl.get_actor()
     critic = rl.get_critic()
 
+    # Log for remaining pegs at the end of each game
+    remaining_pegs_pr_episode = []
+
     # Start the generic actor-critic algorithm
     for episode in range(1, training_config["episodes"] + 1):
-        logging.info("Episode: {}".format(episode))
+        if episode % 50 == 0:
+            logging.info("Episode: {}".format(episode))
+
+        # If it is the last episode - no random actions should be selected
+        if episode == training_config["episodes"]:
+            actor.set_epsilon(0)
+        else:
+            actor.update_epsilon()
 
         # List of (state, action) pairs chosen this episode
         current_episode = []
@@ -64,3 +75,12 @@ if __name__ == '__main__':
 
             # Continue until s reaches an end state
             state, action = new_state, new_action
+
+        # Game ended, add results to log
+        remaining_pegs_pr_episode.append(board.num_pegs_on_board())
+
+        # Reset board for next game
+        board.reset()
+
+    # All episodes has ran, save results
+    plot_progression_of_learning(remaining_pegs_pr_episode)

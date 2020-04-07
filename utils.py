@@ -43,3 +43,12 @@ def init_logger():
             logging.FileHandler("app.log", mode="w"),
             logging.StreamHandler()
         ])
+
+
+def is_empty(lst):
+    """
+    Return boolean if the list is empty or not
+    :param lst: list
+    :return: boolean
+    """
+    return len(lst) == 0
