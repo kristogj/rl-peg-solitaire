@@ -11,7 +11,7 @@ if __name__ == '__main__':
     init_logger()
     # random.seed(42)
     # torch.manual_seed(42)
-    config_path = "configs/task_4.yaml"
+    config_path = "configs/task_3_table.yaml"
 
     # Load settings for this run
     config = load_config(config_path)
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     critic.report_critic_stats()
 
     # Visualize last episode
-    sim_world.visualize_episode(current_episode, config["Training"])
+    sim_world.visualize_episode(current_episode, training_config)
 
     # All episodes has ran, save results
-    plot_progression_of_learning(remaining_pegs_pr_episode)
+    plot_progression_of_learning(remaining_pegs_pr_episode, path=training_config["pol_path"])

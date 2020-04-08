@@ -53,8 +53,11 @@ Training:
   # Delay between frames of the game viewer
   frame_delay: 500
 
+  # Progression of Learning path
+  pol_path: "graphs/task_2_nn.png"
+
   # Path where the animation should be saved
-  animation_path: "graphs/task_2_nn_animation.gif"
+  animation_path: "graphs/task_2_nn.gif"
 
 Player:
   # Who is playing
