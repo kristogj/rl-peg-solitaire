@@ -1,20 +1,23 @@
 from collections import defaultdict
 from utils import is_empty
 import random
+import logging
 
 
 class Actor:
 
     def __init__(self, player, config):
-        # Maps state-action pairs (s,a) to values that indicate the desirability of performing action a
-        # when in state s
         self.config = config
-        self.policy = defaultdict(float)
+        self.policy = defaultdict(lambda: 0)  # Policy mapping SAP to its desirability value
         self.eligibility = defaultdict(lambda: 0)
-        self.player = player
-        self.td_error = None
+        self.player = player  # Player who performs all the actions
+        self.td_error = None  # Temporal Difference error
         self.epsilon = config["epsilon"]  # Epsilon for epsilon-greedy strategy
-        self.dr_epsilon = config["dr_epsilon"]  # Decay rate epsilon
+
+        # Stats
+        self.random_actions = 0
+        self.total_actions = 0
+        self.last_epsilon = None
 
     def reset_eligibility(self):
         """
@@ -42,21 +45,13 @@ class Actor:
                                  self.player.get_legal_actions()))
         if is_empty(legal_actions):
             return None
+        self.total_actions += 1
         if random.random() < self.epsilon:
+            self.random_actions += 1
             return random.choice(legal_actions)[0]
         else:
             legal_actions.sort(key=lambda tup: tup[1], reverse=True)
             return legal_actions[0][0]
-
-    def set_eligibility(self, state, action, value):
-        """
-        Set the value that (state, action) maps to in eligibility to value.
-        :param state: str
-        :param action: Action
-        :param value: int
-        :return: None
-        """
-        self.eligibility[(state, action.__str__())] = value
 
     def set_td_error(self, error):
         """
@@ -72,6 +67,7 @@ class Actor:
         :param: value: float
         :return: None
         """
+        self.last_epsilon = self.epsilon
         self.epsilon = value
 
     def update_policy(self, state, action):
@@ -86,7 +82,7 @@ class Actor:
         self.policy[(state, action.__str__())] += self.config["lr_actor"] * self.td_error * self.eligibility[
             (state, action.__str__())]
 
-    def update_eligibility(self, state, action):
+    def update_eligibility(self, state, action, is_current_state=False):
         """
         Update the value that (state, action) maps to in eligibility.
         The update rule is defined as:
@@ -95,7 +91,10 @@ class Actor:
         :param action: Action
         :return: None
         """
-        self.eligibility[(state, action.__str__())] *= self.config["df_actor"] * self.config["dr_actor"]
+        if is_current_state:
+            self.eligibility[(state, action.__str__())] = 1
+        else:
+            self.eligibility[(state, action.__str__())] *= self.config["df_actor"] * self.config["dr_actor"]
 
     def update_epsilon(self):
         """
@@ -104,4 +103,17 @@ class Actor:
             epsilon = dr_epsilon * epsilon
         :return: None
         """
-        self.epsilon = self.dr_epsilon * self.epsilon
+        self.epsilon *= self.config["dr_epsilon"]
+
+    def report_actor_stats(self):
+        """
+        Log general stats of what the Actor has done during its existence
+        """
+        avg_policy = sum(self.policy.values()) / len(self.policy.keys())
+        avg_eligibility = sum(self.eligibility.values()) / len(self.eligibility.keys())
+        p = int(100 * self.random_actions / self.total_actions)
+        logging.info("ACTOR: ")
+        logging.info("\t {} of {} actions where random: {}%".format(self.random_actions, self.total_actions, p))
+        logging.info("\t Epsilon ended at: {}".format(self.last_epsilon))
+        logging.info("\t Avg policy values: {}".format(avg_policy))
+        logging.info("\t Avg eligibility values: {}".format(avg_eligibility))

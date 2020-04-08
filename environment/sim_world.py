@@ -1,6 +1,6 @@
 from utils import get_board
 from peg_solitaire_player import Player
-from visualizer import BoardDrawer
+from visualizer import BoardVisualizer
 
 import logging
 
@@ -11,7 +11,7 @@ class SimWorld:
         logging.info("Setting up the Simulated World")
         self.board = get_board(config["Board"])  # Game board
         self.player = Player(self.board, config["Player"])  # Peq Solitaire Player
-        self.visualizer = BoardDrawer(self.board, config["Training"])  # Class for visualizing board using networkx
+        self.visualizer = BoardVisualizer(self.board, config["Training"])  # Class for visualizing board using networkx
 
     def is_winning_state(self):
         """
@@ -39,12 +39,12 @@ class SimWorld:
         Return the reward of being in the boards state
         :return:
         """
+        reward = 0
         if self.is_winning_state():
-            return 9999
+            reward += 9999
         elif self.is_loosing_state():
-            return - len(self.board.get_empty_cells()) ** 2
-        else:
-            return 0
+            reward -= len(self.board.get_cells()) ** 2
+        return reward
 
     def get_player(self):
         """
@@ -60,8 +60,23 @@ class SimWorld:
         """
         return self.board
 
+    def perform_action(self, action):
+        """
+        Let the player perform the action and return the new state + reward
+        :param action: Action
+        :return: str, int
+        """
+        new_state = self.player.perform_action(action)
+        reward = self.get_reward()
+        return new_state, reward
+
     def visualize_episode(self, episode, config):
-        board_drawer = BoardDrawer(self.board, config)
+        """
+        Visualize every step in the episode using the BoardVisualizer
+        :param episode: List[(str, Action)]
+        :param config: dict
+        """
+        board_drawer = BoardVisualizer(self.board, config)
         for sap in episode:
             _, action = sap
             if action:

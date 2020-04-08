@@ -10,7 +10,7 @@ if __name__ == '__main__':
     init_logger()
     # random.seed(42)
     # torch.manual_seed(42)
-    config_path = "configs/task_2_nn.yaml"
+    config_path = "configs/task_2_table.yaml"
 
     # Load settings for this run
     config = load_config(config_path)
@@ -45,8 +45,7 @@ if __name__ == '__main__':
         current_episode = []
 
         # Reset eligibility in actor and critic
-        actor.reset_eligibility()
-        critic.reset_eligibility()
+        rl.reset_eligibility()
 
         # Initialize state and action
         state = board.to_binary_string_encoding()
@@ -56,23 +55,20 @@ if __name__ == '__main__':
             legal_actions = player.get_legal_actions()
 
             # Do action action from state, moving it to new_state and return reward
-            new_state = player.perform_action(action)
-            reward = sim_world.get_reward()
+            new_state, reward = sim_world.perform_action(action)
+
             # Get the action devoted to the new state by current policy
             new_action = actor.get_action(new_state)
-            actor.set_eligibility(state, action, 1)
+            actor.update_eligibility(state, action, is_current_state=True)
 
             # Calculate the Temporal Difference error
             td_error = critic.get_td_error(state, new_state, reward)
             actor.set_td_error(td_error)
-            critic.set_eligibility(state, 1)
+            critic.update_eligibility(state, is_current_state=True)
 
-            # For all (state, action) pairs in this episode (all legal actions)
+            # For all (state, action) pairs in this episode
             for s, a in current_episode:
-                critic.update_value(s)
-                critic.update_eligibility(s)
-                actor.update_policy(s, a)
-                actor.update_eligibility(s, a)
+                rl.update(s, a)
 
             # Save (state, action) to the "log" of this episode
             current_episode.append((state, action))
@@ -85,6 +81,10 @@ if __name__ == '__main__':
 
         # Reset board for next game
         board.reset()
+
+    # Report stats for debug
+    actor.report_actor_stats()
+    critic.report_critic_stats()
 
     # Visualize last episode
     sim_world.visualize_episode(current_episode, config["Training"])

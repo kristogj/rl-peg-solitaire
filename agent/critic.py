@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
 import random
+import logging
 
 from models import NNCritic
 from torch.optim import Adam
@@ -14,7 +15,10 @@ class Critic(ABC):
 
     def __init__(self, config):
         self.config = config
-        self.td_error = None
+        self.td_error = None  # Temporal Difference error
+
+        # Stats
+        self.td_errors = []
 
     @abstractmethod
     def get_value(self, state):
@@ -22,14 +26,8 @@ class Critic(ABC):
 
     def get_td_error(self, current_state, future_state, reward):
         """
-        Temporal Difference (TD) error is the difference between
-            a) the reward plus the discounted future state value, and
-            b) the current state value.
-        Intuitively, this represents the difference between
-            a) the actual reward at time t+1 (r) plus the prediction of future rewards from time t+1 until the end
-                of the problem-solving episode (V(s’)), and
-            b) the prediction of future rewards from time t to episode end, V(s).
-
+        Temporal Difference (TD) error is the difference between the reward plus the discounted future state value,
+        and the current state value.
         The error is therefore defined as:
             td_error = reward + discount_factor * V(s') - V(s)
         where s' is the future state.
@@ -39,10 +37,15 @@ class Critic(ABC):
         :return: float
         """
         self.td_error = reward + self.config["df_critic"] * self.get_value(future_state) - self.get_value(current_state)
+        self.td_errors.append(self.td_error)
         return self.td_error
 
     @abstractmethod
     def reset_eligibility(self):
+        pass
+
+    @abstractmethod
+    def report_critic_stats(self):
         pass
 
 
@@ -53,7 +56,7 @@ class TableCritic(Critic):
 
     def __init__(self, config):
         super(TableCritic, self).__init__(config)
-        self.value_function = defaultdict(lambda: random.random())  # Value function (V) mapping states to their value
+        self.value_function = defaultdict(lambda: random.random() * 0.2)  # Value function (V)
         self.eligibility = defaultdict(lambda: 0)  # Eligibility function (e)
 
     def get_value(self, state):
@@ -74,27 +77,42 @@ class TableCritic(Critic):
         """
         self.value_function[state] += self.config["lr_critic"] * self.td_error * self.eligibility[state]
 
-    def update_eligibility(self, state):
+    def update_eligibility(self, state, is_current_state=False):
         """
         Update the value that state maps to in eligibility.
         The update rule is defined as:
+        if state is current state:
+            e_t(s) = 1
+        else:
             e_t(s) = discount_factor * trace_decay_factor * e_{t-1}(s)
         :param state: str
+        :param is_current_state: boolean
         :return: None
         """
-        self.eligibility[state] *= self.config["df_critic"] * self.config["dr_critic"]
-
-    def set_eligibility(self, state, value):
-        """
-        Set the value that state maps to in eligibility to value.
-        :param state: str
-        :param value: int
-        :return:
-        """
-        self.eligibility[state] = value
+        if is_current_state:
+            self.eligibility[state] = 1
+        else:
+            self.eligibility[state] *= self.config["df_critic"] * self.config["dr_critic"]
 
     def reset_eligibility(self):
+        """
+        Reset eligibility table back to default
+        """
         self.eligibility = defaultdict(lambda: 0)
+
+    def report_critic_stats(self):
+        """
+        Log general stats about what the critic has calculated during its existence
+        """
+        avg_value = sum(self.value_function.values()) / len(self.value_function.keys())
+        avg_eligibility = sum(self.eligibility.values()) / len(self.eligibility.keys())
+        avg_td_error = sum(self.td_errors) / len(self.td_errors)
+        logging.info("Critic: ")
+        logging.info("\t Total value mapping: {}".format(len(self.value_function.keys())))
+        logging.info("\t Avg value function values: {}".format(avg_value))
+        logging.info("\t Total eligibility values: {}".format(len(self.eligibility.keys())))
+        logging.info("\t Avg eligibility values: {}".format(avg_eligibility))
+        logging.info("\t Avg TD errors: {}".format(avg_td_error))
 
 
 class NeuralCritic(Critic):
@@ -140,16 +158,15 @@ class NeuralCritic(Critic):
             weight.grad = -self.td_error * self.eligibility[i]
         self.optimizer.step()
 
-    def set_eligibility(self, state, value):
-        self.value_function.zero_grad()
-        self.td_error.backward()
-
     def update_eligibility(self, state):
-        #with torch.no_grad():
-            #for p, eligibility in zip(self.value_function.parameters(), self.eligibility):
-                #new_val = eligibility + p.grad
-                #eligibility.copy_(new_val)
+        # with torch.no_grad():
+        # for p, eligibility in zip(self.value_function.parameters(), self.eligibility):
+        # new_val = eligibility + p.grad
+        # eligibility.copy_(new_val)
         pass
 
     def reset_eligibility(self):
         self.eligibility = [torch.zeros(param.shape) for param in self.value_function.parameters()]
+
+    def report_critic_stats(self):
+        pass
