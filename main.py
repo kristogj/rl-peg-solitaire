@@ -5,17 +5,19 @@ from agent.reinforcement_learner import ReinforcementLearner
 from plotting import plot_progression_of_learning
 import random
 import torch
+import numpy as np
 
 if __name__ == '__main__':
     init_logger()
     # random.seed(42)
     # torch.manual_seed(42)
-    config_path = "configs/task_2_table.yaml"
+    config_path = "configs/task_4.yaml"
 
     # Load settings for this run
     config = load_config(config_path)
     training_config = config["Training"]
-    logging.info(config)
+    for key in config.keys():
+        logging.info("{}: {}".format(key, config[key]))
 
     # Initialize the Simulated World
     sim_world = SimWorld(config)
@@ -29,14 +31,16 @@ if __name__ == '__main__':
 
     # Log for remaining pegs at the end of each game
     remaining_pegs_pr_episode = []
+    rewards = []
 
     # Start the generic actor-critic algorithm
     for episode in range(1, training_config["episodes"] + 1):
         if episode % 50 == 0:
-            logging.info("Episode: {}".format(episode))
+            logging.info("Episode: {} - Avg Rewards: {}".format(episode, np.mean(rewards)))
 
         # If it is the last episode - no random actions should be selected
         if episode == training_config["episodes"]:
+            logging.info("Epsilon = 0")
             actor.set_epsilon(0)
         else:
             actor.update_epsilon()
@@ -56,15 +60,17 @@ if __name__ == '__main__':
 
             # Do action action from state, moving it to new_state and return reward
             new_state, reward = sim_world.perform_action(action)
+            rewards.append(reward)
 
             # Get the action devoted to the new state by current policy
             new_action = actor.get_action(new_state)
-            actor.update_eligibility(state, action, is_current_state=True)
 
             # Calculate the Temporal Difference error
             td_error = critic.get_td_error(state, new_state, reward)
             actor.set_td_error(td_error)
-            critic.update_eligibility(state, is_current_state=True)
+
+            # Set eligibility to 1 for both actor and critic
+            rl.set_eligibility(state, action, is_current_state=True)
 
             # For all (state, action) pairs in this episode
             for s, a in current_episode:

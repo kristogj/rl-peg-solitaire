@@ -34,16 +34,30 @@ class ReinforcementLearner:
         :return: None
         """
         # Update Critic
-        if isinstance(self.critic, TableCritic):
+        if self.config["Critic"]["table_lookup"]:
             self.critic.update_value(state)
             self.critic.update_eligibility(state)
         else:
-            self.critic.update_value(state)
-            self.critic.update_eligibility(state)
-
+            self.critic.update_weights(state)
+            self.critic.update_eligibility()
         # Update Actor
         self.actor.update_policy(state, action)
         self.actor.update_eligibility(state, action)
+
+    def set_eligibility(self, state, action, is_current_state):
+        """
+        Set the eligibility for both critic and actor to 1 using their update functions
+        :param state: str
+        :param action: Action
+        :param is_current_state: boolean
+        :return: None
+        """
+        if self.config["Critic"]["table_lookup"]:
+            self.critic.update_eligibility(state, is_current_state)
+        else:
+            self.critic.update_eligibility(is_current_state)
+
+        self.actor.update_eligibility(state, action, is_current_state)
 
     def reset_eligibility(self):
         """

@@ -1,9 +1,9 @@
 Board:
   # The type of Solitaire board: diamond (d) or triangle (t)
-  type: "t"
+  type: "d"
 
   # The size of the board
-  size: 5
+  size: 4
 
   # The open cell (or cells) in the puzzle’s start state. NOTE: It should be possible to create an initial
   # state with one or more holes. There for add config for all holes location (row, column).
@@ -14,7 +14,7 @@ Critic:
   table_lookup: False
 
   # Dimension of critics neural network. E.g, (20,10,1) is three layers with 20, 10 and 1 neuron.
-  critic_layer_specs: [15, 64, 1]
+  critic_layer_specs: [16, 64, 1]
 
   # Learning rate critic
   # When the critic uses a neural network, it is often wise to have a much lower learning rate for the critic than for the actor.
@@ -54,7 +54,7 @@ Training:
   frame_delay: 500
 
   # Path where the animation should be saved
-  animation_path: "graphs/task_2_nn_animation.gif"
+  animation_path: "graphs/task_3_nn_animation.gif"
 
 Player:
   # Who is playing

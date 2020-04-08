@@ -2,9 +2,7 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 import random
 import logging
-
 from models import NNCritic
-from torch.optim import Adam
 import torch
 
 
@@ -123,8 +121,10 @@ class NeuralCritic(Critic):
     def __init__(self, config):
         super(NeuralCritic, self).__init__(config)
         self.value_function = NNCritic(config["critic_layer_specs"])  # A neural network used as the value function (V)
-        self.optimizer = Adam(self.value_function.parameters(), lr=config["lr_critic"])
         self.eligibility = [torch.zeros(param.shape) for param in self.value_function.parameters()]
+
+        # Stats
+        self.values = []
 
     def get_value(self, state):
         """
@@ -135,38 +135,52 @@ class NeuralCritic(Critic):
         state = list(map(int, list(state)))
         state = torch.FloatTensor(state)
         value = self.value_function(state)
+        self.values.append(value.item())
         return value
 
-    def update_value(self, state):
+    def update_weights(self, state):
         """
-        with torch.no_grad():
-            for p, eligibility in zip(self.value_function.parameters(), self.eligibility):
-                new_val = p + self.config["lr_critic"] * self.td_error * eligibility
-                p.copy_(new_val)
-
-        with torch.no_grad():
-            for i, weight in enumerate(self.value_function.parameters()):
-
-                eligibility_trace = self.config["df_critic"] * self.config["lr_critic"] * self.eligibility[i]
-                torch.add(weight, eligibility_trace)
+        Given a state, forward it through the network then backprop to calculate grad.
+        Iterate over all weights and follow this update rule:
+            e_i = e_i + \frac{dV(s_t)}{dw_i}
+            w_i = w_i + learning_rate * td_error * e_i
         """
-        self.optimizer.zero_grad()
+        self.value_function.zero_grad()
         outputs = self.get_value(state)
         outputs.backward()
         for i, weight in enumerate(self.value_function.parameters()):
             self.eligibility[i] += weight.grad
-            weight.grad = -self.td_error * self.eligibility[i]
-        self.optimizer.step()
+            weight.data.add_(self.config["lr_critic"] * self.td_error * self.eligibility[i])
 
-    def update_eligibility(self, state):
-        # with torch.no_grad():
-        # for p, eligibility in zip(self.value_function.parameters(), self.eligibility):
-        # new_val = eligibility + p.grad
-        # eligibility.copy_(new_val)
-        pass
+    def update_eligibility(self, is_current_state=False):
+        """
+        The update rule is defined as:
+        if state is current state:
+            e_i = 1
+        else:
+            e_i = discount_factor * trace_decay_factor * e_i
+        """
+        for i, _ in enumerate(self.eligibility):
+            if is_current_state:
+                self.eligibility[i].apply_(lambda x: 1)
+            else:
+                self.eligibility[i] *= self.config["df_critic"] * self.config["dr_critic"]
 
     def reset_eligibility(self):
-        self.eligibility = [torch.zeros(param.shape) for param in self.value_function.parameters()]
+        """
+        Reset eligibility back to default
+        """
+        for i, _ in enumerate(self.eligibility):
+            self.eligibility[i].apply_(lambda x: 0)
 
     def report_critic_stats(self):
-        pass
+        """
+        Log general stats about what the critic has calculated during its existence
+        """
+        avg_value = sum(self.values) / len(self.values)
+        avg_td_error = sum(self.td_errors) / len(self.td_errors)
+        logging.info("Critic: ")
+        logging.info("\t Total values calculated: {}".format(len(self.values)))
+        logging.info("\t Avg value function values: {}".format(avg_value))
+        logging.info(
+            "\t Avg TD errors: {}".format(avg_td_error if isinstance(avg_td_error, float) else avg_td_error.item()))

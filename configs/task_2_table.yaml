@@ -14,17 +14,17 @@ Critic:
   table_lookup: True
 
   # Dimension of critics neural network. E.g, (20,10,1) is three layers with 20, 10 and 1 neuron.
-  critic_layer_specs: [15, 64, 1]
+  critic_layer_specs: None
 
   # Learning rate critic
   # When the critic uses a neural network, it is often wise to have a much lower learning rate for the critic than for the actor.
   lr_critic: 0.0001
 
   # The eligibility decay rate
-  dr_critic: 0.8
+  dr_critic: 0.9
 
   # Discount factor critic
-  df_critic: 0.9
+  df_critic: 0.95
 
 
 Actor:
@@ -35,7 +35,7 @@ Actor:
   dr_actor: 0.9
 
   # Discount factor actor and critic
-  df_actor: 0.9
+  df_actor: 0.8
 
   # Epsilon for epsilon-greedy strategy with decay rate if changing
   epsilon: 2
@@ -52,6 +52,9 @@ Training:
 
   # Delay between frames of the game viewer
   frame_delay: 500
+
+  # Path where the animation should be saved
+  animation_path: "graphs/task_2_table_animation.gif"
 
 Player:
   # Who is playing

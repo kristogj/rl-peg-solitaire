@@ -29,13 +29,13 @@ class BoardVisualizer:
             G.add_edges_from(neighbours)
         return G
 
-    def animate(self):
+    def animate(self, path):
         """
         Animate each step to a gif
         """
         animation = self.camera.animate(
             repeat=False, interval=self.config['frame_delay'])
-        animation.save("graphs/animation.gif")
+        animation.save(path)
         plt.show()
 
     def draw(self, action=None):

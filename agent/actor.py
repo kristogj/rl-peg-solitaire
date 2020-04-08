@@ -89,6 +89,7 @@ class Actor:
             e_t(state, action) = discount_factor * trace_factor * e_{t-1}(state, action)
         :param state: str
         :param action: Action
+        :param is_current_state: boolean
         :return: None
         """
         if is_current_state:
@@ -115,5 +116,5 @@ class Actor:
         logging.info("ACTOR: ")
         logging.info("\t {} of {} actions where random: {}%".format(self.random_actions, self.total_actions, p))
         logging.info("\t Epsilon ended at: {}".format(self.last_epsilon))
-        logging.info("\t Avg policy values: {}".format(avg_policy))
+        logging.info("\t Avg policy values: {}".format(avg_policy if isinstance(avg_policy, float) else avg_policy.item()))
         logging.info("\t Avg eligibility values: {}".format(avg_eligibility))
