@@ -29,7 +29,7 @@ Critic:
 
 Actor:
   # Learning rates for the actor and critic – you may have separate values for each.
-  lr_actor: 0.0005
+  lr_actor: 0.00005
 
   # The eligibility decay rate
   dr_actor: 0.1
