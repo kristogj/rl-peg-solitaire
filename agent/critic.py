@@ -150,7 +150,8 @@ class NeuralCritic(Critic):
         outputs.backward()
         for i, weight in enumerate(self.value_function.parameters()):
             self.eligibility[i] += weight.grad
-            weight.data.add_(self.config["lr_critic"] * self.td_error * self.eligibility[i])
+            with torch.no_grad():
+                self.value_function.model[i].weight.add_(self.config["lr_critic"] * self.td_error * self.eligibility[i])
 
     def update_eligibility(self, is_current_state=False):
         """
@@ -162,7 +163,8 @@ class NeuralCritic(Critic):
         """
         for i, _ in enumerate(self.eligibility):
             if is_current_state:
-                self.eligibility[i].apply_(lambda x: 1)
+                pass
+                # self.eligibility[i].apply_(lambda x: 1)
             else:
                 self.eligibility[i] *= self.config["df_critic"] * self.config["dr_critic"]
 

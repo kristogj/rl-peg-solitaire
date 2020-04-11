@@ -3,18 +3,18 @@ Board:
   type: "d"
 
   # The size of the board
-  size: 4
+  size: 5
 
   # The open cell (or cells) in the puzzle’s start state. NOTE: It should be possible to create an initial
   # state with one or more holes. There for add config for all holes location (row, column).
-  holes_loc: [[2,1]]
+  holes_loc: [[3,2]]
 
 Critic:
   # Critic using table lookup or neural network
   table_lookup: False
 
   # Dimension of critics neural network. E.g, (20,10,1) is three layers with 20, 10 and 1 neuron.
-  critic_layer_specs: [16, 64, 1]
+  critic_layer_specs: [25, 64, 1] # input = size! if triangle else size**2
 
   # Learning rate critic
   # When the critic uses a neural network, it is often wise to have a much lower learning rate for the critic than for the actor.
@@ -45,7 +45,7 @@ Actor:
 
 Training:
   # Epochs - The number of episodes it will run
-  episodes: 500
+  episodes: 600
 
   # Display visualizations on-off
   display: True
@@ -54,10 +54,10 @@ Training:
   frame_delay: 500
 
   # Progression of Learning path
-  pol_path: "graphs/task_3_nn.png"
+  pol_path: "graphs/task_4_nn.png"
 
   # Path where the animation should be saved
-  animation_path: "graphs/task_3_nn.gif"
+  animation_path: "graphs/task_4_nn.gif"
 
 Player:
   # Who is playing

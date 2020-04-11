@@ -3,11 +3,11 @@ Board:
   type: "d"
 
   # The size of the board
-  size: 8
+  size: 5
 
   # The open cell (or cells) in the puzzle’s start state. NOTE: It should be possible to create an initial
   # state with one or more holes. There for add config for all holes location (row, column).
-  holes_loc: [[4,3]]
+  holes_loc: [[3,2]]
 
 Critic:
   # Critic using table lookup or neural network
@@ -18,34 +18,34 @@ Critic:
 
   # Learning rate critic
   # When the critic uses a neural network, it is often wise to have a much lower learning rate for the critic than for the actor.
-  lr_critic: 0.0001
+  lr_critic: 0.00001
 
   # The eligibility decay rate
-  dr_critic: 0.9
+  dr_critic: 0.1
 
   # Discount factor critic
-  df_critic: 0.95
+  df_critic: 0.9
 
 
 Actor:
   # Learning rates for the actor and critic – you may have separate values for each.
-  lr_actor: 0.0001
+  lr_actor: 0.00005
 
   # The eligibility decay rate
-  dr_actor: 0.9
+  dr_actor: 0.1
 
   # Discount factor actor and critic
-  df_actor: 0.8
+  df_actor: 0.9
 
   # Epsilon for epsilon-greedy strategy with decay rate if changing
-  epsilon: 2
+  epsilon: 1
 
   # Decay rate epsilon
   dr_epsilon: 0.99
 
 Training:
   # Epochs - The number of episodes it will run
-  episodes: 600
+  episodes: 1000
 
   # Display visualizations on-off
   display: True
@@ -54,10 +54,10 @@ Training:
   frame_delay: 500
 
   # Progression of Learning path
-  pol_path: "graphs/task_4.png"
+  pol_path: "graphs/task_4_table.png"
 
   # Path where the animation should be saved
-  animation_path: "graphs/task_4.gif"
+  animation_path: "graphs/task_4_table.gif"
 
 Player:
   # Who is playing

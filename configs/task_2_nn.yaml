@@ -7,45 +7,45 @@ Board:
 
   # The open cell (or cells) in the puzzle’s start state. NOTE: It should be possible to create an initial
   # state with one or more holes. There for add config for all holes location (row, column).
-  holes_loc: [[2,1]]
+  holes_loc: [[3,1]]
 
 Critic:
   # Critic using table lookup or neural network
   table_lookup: False
 
   # Dimension of critics neural network. E.g, (20,10,1) is three layers with 20, 10 and 1 neuron.
-  critic_layer_specs: [15, 64, 1]
+  critic_layer_specs: [15, 64, 1] = # input = 5 + 4 + 3 + 2 + 1 = 5 !
 
   # Learning rate critic
   # When the critic uses a neural network, it is often wise to have a much lower learning rate for the critic than for the actor.
-  lr_critic: 0.00000001
+  lr_critic: 0.1
 
   # The eligibility decay rate
-  dr_critic: 0.9
+  dr_critic: 0.1
 
   # Discount factor critic
-  df_critic: 0.95
+  df_critic: 0.9
 
 
 Actor:
   # Learning rates for the actor and critic – you may have separate values for each.
-  lr_actor: 0.0001
+  lr_actor: 0.5
 
   # The eligibility decay rate
-  dr_actor: 0.9
+  dr_actor: 0.1
 
   # Discount factor actor and critic
-  df_actor: 0.8
+  df_actor: 0.9
 
   # Epsilon for epsilon-greedy strategy with decay rate if changing
-  epsilon: 2
+  epsilon: 1
 
   # Decay rate epsilon
   dr_epsilon: 0.99
 
 Training:
   # Epochs - The number of episodes it will run
-  episodes: 600
+  episodes: 1000
 
   # Display visualizations on-off
   display: True

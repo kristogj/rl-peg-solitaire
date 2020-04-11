@@ -11,7 +11,7 @@ if __name__ == '__main__':
     init_logger()
     # random.seed(42)
     # torch.manual_seed(42)
-    config_path = "configs/task_3_table.yaml"
+    config_path = "configs/task_4_nn.yaml"
 
     # Load settings for this run
     config = load_config(config_path)
