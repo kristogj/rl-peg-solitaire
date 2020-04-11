@@ -161,12 +161,10 @@ class NeuralCritic(Critic):
         else:
             e_i = discount_factor * trace_decay_factor * e_i
         """
+        if is_current_state:
+            return
         for i, _ in enumerate(self.eligibility):
-            if is_current_state:
-                pass
-                # self.eligibility[i].apply_(lambda x: 1)
-            else:
-                self.eligibility[i] *= self.config["df_critic"] * self.config["dr_critic"]
+            self.eligibility[i] *= self.config["df_critic"] * self.config["dr_critic"]
 
     def reset_eligibility(self):
         """

@@ -14,7 +14,7 @@ Critic:
   table_lookup: False
 
   # Dimension of critics neural network. E.g, (20,10,1) is three layers with 20, 10 and 1 neuron.
-  critic_layer_specs: [15, 64, 1] = # input = 5 + 4 + 3 + 2 + 1 = 5 !
+  critic_layer_specs: [15, 64, 1]  # input = 5 + 4 + 3 + 2 + 1 = 5 !
 
   # Learning rate critic
   # When the critic uses a neural network, it is often wise to have a much lower learning rate for the critic than for the actor.
