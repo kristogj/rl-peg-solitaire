@@ -43,7 +43,7 @@ class SimWorld:
         if self.is_winning_state():
             reward += 9999
         elif self.is_loosing_state():
-            reward -= len(self.board.get_cells()) ** 2
+            reward -= len(self.board.get_cells())
         return reward
 
     def get_player(self):

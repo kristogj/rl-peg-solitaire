@@ -79,8 +79,8 @@ class Actor:
         :param action: Action
         :return: None
         """
-        self.policy[(state, action.__str__())] += self.config["lr_actor"] * self.td_error * self.eligibility[
-            (state, action.__str__())]
+        action = action.__str__()
+        self.policy[(state, action)] += self.config["lr_actor"] * self.td_error * self.eligibility[(state, action)]
 
     def update_eligibility(self, state, action, is_current_state=False):
         """
@@ -92,10 +92,11 @@ class Actor:
         :param is_current_state: boolean
         :return: None
         """
+        action = action.__str__()
         if is_current_state:
-            self.eligibility[(state, action.__str__())] = 1
+            self.eligibility[(state, action)] = 1
         else:
-            self.eligibility[(state, action.__str__())] *= self.config["df_actor"] * self.config["dr_actor"]
+            self.eligibility[(state, action)] *= self.config["df_actor"] * self.config["dr_actor"]
 
     def update_epsilon(self):
         """

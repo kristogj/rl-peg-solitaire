@@ -11,7 +11,7 @@ if __name__ == '__main__':
     init_logger()
     # random.seed(42)
     # torch.manual_seed(42)
-    config_path = "configs/task_3_table.yaml"
+    config_path = "configs/task_2_table.yaml"
 
     # Load settings for this run
     config = load_config(config_path)
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     player = sim_world.get_player()
 
     # Initialize the Reinforcement Learner
-    rl = ReinforcementLearner(sim_world.get_player(), config)
+    rl = ReinforcementLearner(player, config)
     actor = rl.get_actor()
     critic = rl.get_critic()
 
@@ -37,6 +37,7 @@ if __name__ == '__main__':
     for episode in range(1, training_config["episodes"] + 1):
         if episode % 50 == 0:
             logging.info("Episode: {} - Avg Rewards: {}".format(episode, np.mean(rewards)))
+            rewards = []
 
         # If it is the last episode - no random actions should be selected
         if episode == training_config["episodes"]:
@@ -55,9 +56,6 @@ if __name__ == '__main__':
         state = board.to_binary_string_encoding()
         action = actor.get_action(state)
         while sim_world.is_neutral_state():
-            # Legal actions in current state
-            legal_actions = player.get_legal_actions()
-
             # Do action action from state, moving it to new_state and return reward
             new_state, reward = sim_world.perform_action(action)
             rewards.append(reward)

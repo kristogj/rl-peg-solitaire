@@ -54,7 +54,7 @@ class TableCritic(Critic):
 
     def __init__(self, config):
         super(TableCritic, self).__init__(config)
-        self.value_function = defaultdict(lambda: random.random() * 0.2)  # Value function (V)
+        self.value_function = defaultdict(lambda: 0)  # Value function (V) - algorithm say random, but 0 works best
         self.eligibility = defaultdict(lambda: 0)  # Eligibility function (e)
 
     def get_value(self, state):

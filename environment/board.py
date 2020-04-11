@@ -9,6 +9,7 @@ class PegBoard(ABC):
         self.type = config["type"]  # Board type. Diamond or Triangle
         self.holes_loc = config["holes_loc"]  # List of locations of all cells that should be init as empty
         self.board = [[None for _ in range(self.size)] for _ in range(self.size)]  # The actual board used while playing
+        self.neighbour_pattern = None
 
     @abstractmethod
     def init_board(self):
@@ -62,23 +63,22 @@ class PegBoard(ABC):
         """
         self.board[cell.row][cell.column] = cell
 
-    def set_neighbours(self, neighbour_pattern):
+    def set_neighbours(self):
         """
         For each cell on the board, calculate its neighbours positions and add to list of neighbours if it is a legal
         neighbour.
-        :param neighbour_pattern:
         :return: None
         """
         for r in range(self.size):
             for c in range(self.size):
                 current_cell = self.get_cell((r, c))
                 if current_cell:
-                    neighbours = list(map(lambda tup: (r + tup[0], c + tup[1]), neighbour_pattern))
+                    neighbours = list(map(lambda tup: (r + tup[0], c + tup[1]), self.neighbour_pattern))
                     for i, coord in enumerate(neighbours):
                         if self.is_legal_neighbour(coord):
                             cell = self.get_cell(coord)
                             if cell:
-                                current_cell.add_neighbour(cell, neighbour_pattern[i])
+                                current_cell.add_neighbour(cell, self.neighbour_pattern[i])
 
     def is_legal_neighbour(self, coord):
         """
@@ -113,7 +113,7 @@ class DiamondPegBoard(PegBoard):
         super(DiamondPegBoard, self).__init__(config)
         # Each cell will have a maximum of 6 neighbours:
         # (r-1,c) (r-1,c+1), (r,c-1), (r.c+1), (r+1,c-1), (r+1,c)
-        self.pattern = [(-1, 0), (-1, 1), (0, - 1), (0, 1), (1, - 1), (1, 0)]
+        self.neighbour_pattern = [(-1, 0), (-1, 1), (0, - 1), (0, 1), (1, - 1), (1, 0)]
 
         self.init_board()
 
@@ -128,11 +128,11 @@ class DiamondPegBoard(PegBoard):
         # Remove pegs where there should be holes
         self.init_holes()
 
-        self.set_neighbours(self.pattern)
+        self.set_neighbours()
 
     def reset(self):
         """
-        Initialize a new board
+        Reset current board
         """
         for row in range(self.size):
             for column in range(self.size):
@@ -147,7 +147,7 @@ class TrianglePegBoard(PegBoard):
         super(TrianglePegBoard, self).__init__(config)
         # Each cell will have a maximum of 6 neighbours:
         # (r-1,c-1), (r-1,c), (r,c-1), (r, c+1), (r+1,c), (r+1, c+1)
-        self.pattern = [(- 1, - 1), (- 1, 0), (0, - 1), (0, + 1), (1, 0), (1, 1)]
+        self.neighbour_pattern = [(- 1, - 1), (- 1, 0), (0, - 1), (0, 1), (1, 0), (1, 1)]
 
         self.init_board()
 
@@ -162,7 +162,7 @@ class TrianglePegBoard(PegBoard):
         # Remove pegs where there should be holes
         self.init_holes()
 
-        self.set_neighbours(self.pattern)
+        self.set_neighbours()
 
     def reset(self):
         """
