@@ -70,12 +70,15 @@ class SimWorld:
         reward = self.get_reward()
         return new_state, reward
 
-    def visualize_episode(self, episode, config):
+    def visualize_episode(self, episode, config, path=None):
         """
         Visualize every step in the episode using the BoardVisualizer
         :param episode: List[(str, Action)]
         :param config: dict
+        :param path: str
         """
+        if not path:
+            path = config["animation_path"]
         board_drawer = BoardVisualizer(self.board, config)
         for sap in episode:
             _, action = sap
@@ -83,4 +86,4 @@ class SimWorld:
                 board_drawer.draw(action=action)
                 self.player.perform_action(action)
                 board_drawer.draw()
-        board_drawer.animate(config["animation_path"])
+        board_drawer.animate(path)

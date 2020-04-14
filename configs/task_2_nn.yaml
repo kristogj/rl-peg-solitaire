@@ -48,7 +48,7 @@ Training:
   episodes: 1000
 
   # Display visualizations on-off
-  display: True
+  display: False
 
   # Delay between frames of the game viewer
   frame_delay: 500

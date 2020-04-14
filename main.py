@@ -35,9 +35,6 @@ if __name__ == '__main__':
 
     # Start the generic actor-critic algorithm
     for episode in range(1, training_config["episodes"] + 1):
-        if episode % 50 == 0:
-            logging.info("Episode: {} - Avg Rewards: {}".format(episode, np.mean(rewards)))
-            rewards = []
 
         # If it is the last episode - no random actions should be selected
         if episode == training_config["episodes"]:
@@ -58,7 +55,8 @@ if __name__ == '__main__':
         while sim_world.is_neutral_state():
             # Do action action from state, moving it to new_state and return reward
             new_state, reward = sim_world.perform_action(action)
-            rewards.append(reward)
+            if reward != 0:
+                rewards.append(reward)
 
             # Get the action devoted to the new state by current policy
             new_action = actor.get_action(new_state)
@@ -85,6 +83,13 @@ if __name__ == '__main__':
 
         # Reset board for next game
         board.reset()
+
+        if episode % 50 == 0:
+            logging.info("Episode: {} - Avg Rewards: {}".format(episode, np.mean(rewards)))
+            rewards = []
+            if training_config["display"]:
+                sim_world.visualize_episode(current_episode, training_config,
+                                            path="graphs/mid/episode_{}.gif".format(episode))
 
     # Report stats for debug
     actor.report_actor_stats()
